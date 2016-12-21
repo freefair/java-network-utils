@@ -8,5 +8,10 @@ repositories {
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'com.squareup.okio:okio:1.11.0'
+
+    compileOnly 'org.projectlombok:lombok:1.16.12'
+    compileOnly files("lib/annotations-java8.jar")
+
     testCompile 'junit:junit:4.12'
 }
