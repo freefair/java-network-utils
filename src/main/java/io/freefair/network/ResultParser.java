@@ -19,11 +19,10 @@ public class ResultParser<T> {
 
     public T fill(T result, String output) {
         Matcher matcher = pattern.matcher(output);
-        if(matcher.find()) {
-            return reader.apply(result, matcher);
-        } else {
-            return result;
+        while(matcher.find()) {
+            result = reader.apply(result, matcher);
         }
+        return result;
     }
 
 }

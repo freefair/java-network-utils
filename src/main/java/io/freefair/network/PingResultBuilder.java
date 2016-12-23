@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 
-/**
- * Created by larsgrefer on 21.12.16.
- */
 class PingResultBuilder {
 
     private static final BiFunction<PingResult, Matcher, PingResult> roundTripTimeParser = (result, matcher) -> {
@@ -24,7 +21,8 @@ class PingResultBuilder {
         result.setMdevRoundTripTime(Duration.ofNanos((long) (1000 * 1000 * mdevRTT)));
         return result;
     };
-    static final List<ResultParser<PingResult>> resultParsers = Arrays.asList(
+
+    private static final List<ResultParser<PingResult>> resultParsers = Arrays.asList(
 
             /* GNU Ping (Debian, etc.) */
             ResultParser.of("PING (.*) \\((.*?)\\)", (result, matcher) -> {
@@ -61,7 +59,26 @@ class PingResultBuilder {
 
                 return result;
             }),
-            ResultParser.of("round-trip min\\/avg\\/max\\/stddev = (.*)\\/(.*)\\/(.*)\\/(.*) ms", roundTripTimeParser)
+            ResultParser.of("round-trip min\\/avg\\/max\\/stddev = (.*)\\/(.*)\\/(.*)\\/(.*) ms", roundTripTimeParser),
+            ResultParser.of("(.*) bytes from (.*): icmp_seq=(.*) ttl=(.*) time=(.*) ms", (result, matcher) -> {
+                int bytes = Integer.parseInt(matcher.group(1));
+                String host = matcher.group(2);
+                int icmpSeq = Integer.parseInt(matcher.group(3));
+                int ttl = Integer.parseInt(matcher.group(4));
+                Duration time = Duration.ofNanos((long) (1000 * 1000 * Double.parseDouble(matcher.group(5))));
+
+                PingResult.Response response = PingResult.Response.builder()
+                        .bytes(bytes)
+                        .host(host)
+                        .icmpSeq(icmpSeq)
+                        .ttl(ttl)
+                        .time(time)
+                        .build();
+
+                result.getResponses().add(response);
+
+                return result;
+            })
     );
 
     static PingResult fromOutput(String output) {
