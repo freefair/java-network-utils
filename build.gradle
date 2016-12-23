@@ -1,6 +1,10 @@
-apply plugin: 'java'
+plugins {
+    id "java"
+    id "maven"
+}
 
 group = "io.freefair"
+version = "1.0.1"
 
 repositories {
     jcenter()
